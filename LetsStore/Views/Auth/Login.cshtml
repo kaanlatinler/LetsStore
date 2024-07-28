@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_AuthLayout";
+    ViewBag.Title = "Login";
+}
+@using LetsStore.ViewModels
+@model LoginViewModel
+
+
+    <!-- Login Section Begin -->
+    <section class="login spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="login__form">
+                        <h3>Login</h3>
+                        <form method="post">
+                            <div class="input__item">
+                                <input asp-for="UserEmail" type="text" placeholder="Email address">
+                                <span class="icon_mail"></span>
+                            </div>
+                            <div class="input__item">
+                                <input asp-for="UserPassword" type="text" placeholder="Password">
+                                <span class="icon_lock"></span>
+                            </div>
+                            <button type="submit" class="site-btn">Login Now</button>
+                        </form>
+                        <a href="#" class="forget_pass">Forgot Your Password?</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="login__register">
+                        <h3>Dont’t Have An Account?</h3>
+                        <a href="@Url.Action("Register", "Auth")" class="primary-btn">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Login Section End -->
