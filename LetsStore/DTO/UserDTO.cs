@@ -12,6 +12,6 @@ namespace LetsStore.DTO
 
         public string UserPassword { get; set; } = null!;
 
-        public virtual ICollection<StorageMap> StorageMaps { get; set; } = new List<StorageMap>();
+        public virtual ICollection<StorageMapDTO> StorageMapDTOs { get; set; } = new List<StorageMapDTO>();
     }
 }

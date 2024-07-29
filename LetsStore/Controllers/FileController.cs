@@ -21,7 +21,7 @@ namespace LetsStore.Controllers
             if (files == null || files.Count == 0)
                 return Content("Files not selected");
 
-            var rootFolder = Path.Combine(_hostEnvironment.ContentRootPath, "Files");
+            var rootFolder = Path.Combine(_hostEnvironment.WebRootPath, "Files");
 
             if (!Directory.Exists(rootFolder))
             {
@@ -35,120 +35,126 @@ namespace LetsStore.Controllers
                 var extension = Path.GetExtension(file.FileName).ToLower();
 
                 string targetFolder;
-                if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
+                try
                 {
-                    targetFolder = Path.Combine(rootFolder, "Videos");
-
-                    if (!Directory.Exists(targetFolder))
+                    if (extension == ".mp4" || extension == ".avi" || extension == ".mov")
                     {
-                        Directory.CreateDirectory(targetFolder);
+                        targetFolder = Path.Combine(rootFolder, "Videos");
+
+                        if (!Directory.Exists(targetFolder))
+                        {
+                            Directory.CreateDirectory(targetFolder);
+                        }
+
+                        var filePath = Path.Combine(targetFolder, file.FileName);
+
+                        Guid storageID = Guid.NewGuid();
+
+                        var newFile = new Storage
+                        {
+                            UploadedDevice = DeviceInfo,
+                            CreatedDate = DateTime.Now,
+                            FilePath = $"/Files/Videos/{file.FileName}",
+                            StorageId = storageID,
+                            StoredFileName = file.FileName,
+                            StoredFileType = extension,
+                        };
+                        _context.Storages.Add(newFile);
+
+                        string videos = "7EE054D3-F188-412F-BC5E-6340F67C2337";
+
+                        Guid catID = Guid.Parse(videos);
+
+                        var cm = new CategoryMap
+                        {
+                            CategoryMapId = Guid.NewGuid(),
+                            StorageId = storageID,
+                            CatId = catID,
+                        };
+                        _context.CategoryMaps.Add(cm);
+
+                        var userID = Guid.Parse(User.Identity.Name);
+
+                        var sm = new StorageMap
+                        {
+                            StorageMapId = Guid.NewGuid(),
+                            StorageId = storageID,
+                            UserId = userID,
+                        };
+
+                        _context.StorageMaps.Add(sm);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        _context.SaveChanges();
                     }
-
-                    var filePath = Path.Combine(targetFolder, file.FileName);
-
-                    Guid storageID = Guid.NewGuid();
-
-                    var newFile = new Storage
+                    else if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
                     {
-                        UploadedDevice = DeviceInfo,
-                        CreatedDate = DateTime.Now,
-                        FilePath = filePath,
-                        StorageId = storageID,
-                        StoredFileName = file.FileName,
-                        StoredFileType = extension,
-                    };
-                    _context.Storages.Add(newFile);
+                        targetFolder = Path.Combine(rootFolder, "Photos");
 
-                    string videos = "7EE054D3-F188-412F-BC5E-6340F67C2337";
+                        if (!Directory.Exists(targetFolder))
+                        {
+                            Directory.CreateDirectory(targetFolder);
+                        }
 
-                    Guid catID = Guid.Parse(videos);
+                        var filePath = Path.Combine(targetFolder, file.FileName);
 
-                    var cm = new CategoryMap
-                    {
-                        CategoryMapId = Guid.NewGuid(),
-                        StorageId = storageID,
-                        CatId = catID,
-                    };
-                    _context.CategoryMaps.Add(cm);
+                        Guid storageID = Guid.NewGuid();
 
-                    var userID = Guid.Parse(User.Identity.Name);
+                        var newFile = new Storage
+                        {
+                            UploadedDevice = DeviceInfo,
+                            CreatedDate = DateTime.Now,
+                            FilePath = $"/Files/Photos/{file.FileName}",
+                            StorageId = storageID,
+                            StoredFileName = file.FileName,
+                            StoredFileType = extension,
+                        };
+                        _context.Storages.Add(newFile);
 
-                    var sm = new StorageMap
-                    {
-                        StorageMapId = Guid.NewGuid(),
-                        StorageId = storageID,
-                        UserId = userID,
-                    };
+                        string photos = "AA9ED176-4A85-4DBE-B892-6CA29C54353C";
 
-                    _context.StorageMaps.Add(sm);
+                        Guid catID = Guid.Parse(photos);
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
+                        var cm = new CategoryMap
+                        {
+                            CategoryMapId = Guid.NewGuid(),
+                            StorageId = storageID,
+                            CatId = catID,
+                        };
+                        _context.CategoryMaps.Add(cm);
+
+                        var userID = Guid.Parse(User.Identity.Name);
+
+                        var sm = new StorageMap
+                        {
+                            StorageMapId = Guid.NewGuid(),
+                            StorageId = storageID,
+                            UserId = userID,
+                        };
+
+                        _context.StorageMaps.Add(sm);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        _context.SaveChanges();
                     }
-
-                    _context.SaveChanges();
                 }
-                else if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
+                catch (Exception ex)
                 {
-                    targetFolder = Path.Combine(rootFolder, "Photos");
-
-                    if (!Directory.Exists(targetFolder))
-                    {
-                        Directory.CreateDirectory(targetFolder);
-                    }
-
-                    var filePath = Path.Combine(targetFolder, file.FileName);
-
-                    Guid storageID = Guid.NewGuid();
-
-                    var newFile = new Storage
-                    {
-                        UploadedDevice = DeviceInfo,
-                        CreatedDate = DateTime.Now,
-                        FilePath = filePath,
-                        StorageId = storageID,
-                        StoredFileName = file.FileName,
-                        StoredFileType = extension,
-                    };
-                    _context.Storages.Add(newFile);
-
-                    string photos = "AA9ED176-4A85-4DBE-B892-6CA29C54353C";
-
-                    Guid catID = Guid.Parse(photos);
-
-                    var cm = new CategoryMap
-                    {
-                        CategoryMapId = Guid.NewGuid(),
-                        StorageId = storageID,
-                        CatId = catID,
-                    };
-                    _context.CategoryMaps.Add(cm);
-
-                    var userID = Guid.Parse(User.Identity.Name);
-
-                    var sm = new StorageMap
-                    {
-                        StorageMapId = Guid.NewGuid(),
-                        StorageId = storageID,
-                        UserId = userID,
-                    };
-
-                    _context.StorageMaps.Add(sm);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    _context.SaveChanges();
-                }
-                else
-                {
+                    // Log the error (uncomment ex variable name and write a log.)
+                    return Content($"Error: {ex.Message}");
                 }
             }
 
             return RedirectToAction("Index", "Home");
         }
+
     }
 }
